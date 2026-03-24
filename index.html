@@ -1,8 +1,236 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <title>Command Center</title>
+  <meta charset="UTF-8" />
+  <title>Command Center</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#6c63ff" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="data:;base64,iVBORw0KGgo=" />
+  <style>
+    html, body {
+      background: #18142f;
+      color: #fff;
+      font-family: system-ui, "Segoe UI", Arial, sans-serif;
+      margin: 0; padding: 0;
+      min-height: 100vh;
+    }
+    header {
+      background: #272357;
+      padding: 1.5rem 2rem 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1.5px solid #2e2a4d;
+    }
+    h1 {
+      color: #b8acff; margin: 0;
+      font-size: 2.1em; font-weight: 800;
+    }
+    #settingsBtn {
+      background: #6c63ff; color: #fff; border: none; border-radius: 4px; font-size: 1.1em;
+      padding: 0.5em 1em; cursor: pointer; transition:.2s;
+    }
+    #settingsBtn:hover { background:#574de3; }
+    .container {
+      max-width: 700px;
+      margin: 2rem auto;
+      padding: 2rem;
+      background: #201c3c;
+      border-radius: 15px;
+      box-shadow: 0 4px 36px #0002;
+      min-height: 50vh;
+    }
+    .tasks-list li {
+      list-style: none;
+      margin: 0 0 .85em 0;
+      background: #352984; color: #fff;
+      border-radius: 7px; padding: .8em 1.4em; font-size:1.03em;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .tasks-list li .del-btn {
+      background:none; border:none; color:#ff8282; font-size:1.1em; cursor:pointer;
+      margin-left:1em;
+    }
+    #addTaskRow { display:flex; gap:.75em; margin:1.5em 0; }
+    #newTaskInput { flex:1; padding:.7em; font-size:1.08em; border-radius:6px; border: 1px solid #555; background:#292258; color:#fff; }
+    #addBtn { padding:.7em 1.5em; background:#62d8bb; border:none; border-radius:6px; color:#14122d; font-weight:bold; cursor:pointer; transition:.15s; }
+    #addBtn:hover { background:#3b9b7c; color:#fff; }
+    section h2 { color:#b8acff; margin-bottom:1em; }
+    #memoryBank, #quickCapture { margin-top:2.5em; }
+    #memoryInput { width:100%; border-radius:8px; font-size:1em; padding:.7em; background:#292258; border:1px solid #444; color:#eee; }
+    #saveMemoryBtn { margin-top:.8em;background:#9fcf86;color:#261f40;border:none;padding:.6em 1.7em;border-radius:6px;font-weight:bold;cursor:pointer; }
+    #saveMemoryBtn:hover {background:#6aaa49;color:#fff;}
+    .mem-item { background:#22382b; margin:.5em 0; padding:.5em 1em; border-radius:6px; color:#b7fda0; }
+    /* Modal styles */
+    .modal-bg {
+      position: fixed; top:0; left:0; right:0; bottom:0;
+      background: #0006; z-index: 21; display: flex; align-items: center; justify-content: center;
+    }
+    .modal { background:#201c3c;color:#fff; border-radius:13px;min-width:330px; padding:2.7em 2.2em; position:relative; box-shadow:0 6px 32px #0002;}
+    .modal label { font-size:1em;display:block; margin:1.3em 0 .3em; font-weight: 600;}
+    .modal input {width:100%;padding:.6em .8em;font-size:1.03em;border-radius:7px;border:1px solid #373754;background:#292258;color:#fff;}
+    .modal .close {position:absolute;top:13px;right:18px;font-size:1.7em;color:#999;cursor:pointer;}
+    .modal button { margin-top:1.3em; background:#62d8bb;color:#18142f;font-size:1.09em;padding:.6em 1.6em;border:none;border-radius:7px;font-weight:bold;}
+    .modal button:hover {background:#3e9783;color:#fff;}
+    @media (max-width: 600px) {.container{padding:1em}}
+  </style>
 </head>
 <body>
-    <h1>Welcome to the Command Center</h1>
+  <header>
+    <h1>Command Center</h1>
+    <button id="settingsBtn">⚙️ Setup</button>
+  </header>
+  <div class="container">
+    <section id="tasks">
+      <h2>Your Tasks</h2>
+      <div id="addTaskRow">
+        <input id="newTaskInput" type="text" placeholder="Add a new task and press Enter" />
+        <button id="addBtn">Add</button>
+      </div>
+      <ul id="taskList" class="tasks-list"></ul>
+    </section>
+    <section id="memoryBank">
+      <h2>Memory Bank</h2>
+      <textarea id="memoryInput" rows="1" placeholder="Paste an idea, note, or link here..."></textarea>
+      <br>
+      <button id="saveMemoryBtn">Save Memory</button>
+      <div id="memoryList"></div>
+    </section>
+    <section id="quickCapture">
+      <h2>Quick Capture</h2>
+      <input id="quickInput" type="text" placeholder="Quick capture to inbox..." />
+    </section>
+  </div>
+  <div id="modalBg" class="modal-bg" style="display:none;">
+    <div class="modal">
+      <span class="close" onclick="modalBg.style.display='none';">&times;</span>
+      <h2>🔧 Setup Configuration</h2>
+      <label>Anthropic API Key</label>
+      <input id="apiKeyInput" type="text" autocomplete="off" spellcheck="false" />
+      <label>Notion Token</label>
+      <input id="notionTokenInput" type="text" autocomplete="off" spellcheck="false" />
+      <label>Notion Database ID</label>
+      <input id="notionDbInput" type="text" autocomplete="off" spellcheck="false"/>
+      <button id="saveConfigBtn">Save Config</button>
+    </div>
+  </div>
+  <script>
+    // Local storage keys
+    const TASKS_KEY = 'cc_tasks';
+    const MEMORY_KEY = 'cc_memory';
+    const CONFIG_KEY = 'cc_config';
+
+    // Elements
+    const taskInput = document.getElementById('newTaskInput');
+    const addBtn = document.getElementById('addBtn');
+    const taskList = document.getElementById('taskList');
+    const memoryInput = document.getElementById('memoryInput');
+    const saveMemoryBtn = document.getElementById('saveMemoryBtn');
+    const memoryList = document.getElementById('memoryList');
+    const quickInput = document.getElementById('quickInput');
+    const modalBg = document.getElementById('modalBg');
+    const settingsBtn = document.getElementById('settingsBtn');
+    const apiKeyInput = document.getElementById('apiKeyInput');
+    const notionTokenInput = document.getElementById('notionTokenInput');
+    const notionDbInput = document.getElementById('notionDbInput');
+    const saveConfigBtn = document.getElementById('saveConfigBtn');
+
+    // Utility
+    function load(key, fallback=[]) {
+      try { return JSON.parse(localStorage.getItem(key)) || fallback; }
+      catch { return fallback; }
+    }
+    function save(key, obj) { localStorage.setItem(key, JSON.stringify(obj)); }
+    // ----- Tasks -----
+    function renderTasks() {
+      const tasks = load(TASKS_KEY);
+      taskList.innerHTML = '';
+      tasks.forEach((t, i) => {
+        const li = document.createElement('li');
+        li.className = "task-item";
+        li.textContent = t;
+        const del = document.createElement('button');
+        del.textContent = '🗑️';
+        del.className = 'del-btn';
+        del.onclick = () => {
+          tasks.splice(i,1);
+          save(TASKS_KEY, tasks);
+          renderTasks();
+        };
+        li.appendChild(del);
+        taskList.appendChild(li);
+      });
+    }
+    addBtn.onclick = () => {
+      const val = taskInput.value.trim();
+      if (val) {
+        const tasks = load(TASKS_KEY);
+        tasks.push(val);
+        save(TASKS_KEY, tasks);
+        taskInput.value = '';
+        renderTasks();
+      }
+    }
+    taskInput.onkeydown = e => { if(e.key==="Enter") addBtn.onclick(); };
+    // ----- Memory -----
+    function renderMemory() {
+      const mems = load(MEMORY_KEY);
+      memoryList.innerHTML = '';
+      mems.forEach((m, i) => {
+        const div = document.createElement('div');
+        div.className = 'mem-item';
+        div.textContent = m;
+        memoryList.appendChild(div);
+      });
+    }
+    saveMemoryBtn.onclick = () => {
+      const v = memoryInput.value.trim();
+      if (v) {
+        const mems = load(MEMORY_KEY);
+        mems.push(v);
+        save(MEMORY_KEY, mems);
+        memoryInput.value = '';
+        renderMemory();
+      }
+    }
+    // ----- Quick Capture -----
+    quickInput.onkeydown = e => {
+      if (e.key==="Enter") {
+        const v = quickInput.value.trim();
+        if (v) {
+          const tasks = load(TASKS_KEY);
+          tasks.unshift(v + " (quick)");
+          save(TASKS_KEY, tasks);
+          quickInput.value = '';
+          renderTasks();
+        }
+      }
+    }
+    // ----- Settings -----
+    settingsBtn.onclick = () => {
+      modalBg.style.display = 'flex';
+      const cfg = load(CONFIG_KEY, {});
+      apiKeyInput.value = cfg.apiKey || '';
+      notionTokenInput.value = cfg.notionToken || '';
+      notionDbInput.value = cfg.notionDb || '';
+    }
+    saveConfigBtn.onclick = () => {
+      save(CONFIG_KEY, {
+        apiKey: apiKeyInput.value.trim(),
+        notionToken: notionTokenInput.value.trim(),
+        notionDb: notionDbInput.value.trim()
+      });
+      modalBg.style.display = 'none';
+      alert("Config saved locally! (API requests in-app require extra integration.)");
+    }
+    // Service worker registration
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./service-worker.js');
+    }
+    // Initial render
+    renderTasks();
+    renderMemory();
+  </script>
 </body>
 </html>
