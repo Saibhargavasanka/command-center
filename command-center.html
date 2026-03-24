@@ -3,24 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="manifest" href="manifest.json">
-    <title>Command Center</title>
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('service-worker.js')
-                .then(registration => {
-                    console.log('Service Worker registered with scope:', registration.scope);
-                })
-                .catch(error => {
-                    console.error('Service Worker registration failed:', error);
-                });
-            });
-        }
-    </script>
+    <title>Task Management PWA</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="app.js" defer></script>
 </head>
 <body>
-    <h1>Welcome to the Command Center</h1>
-    <p>This is a Progressive Web Application (PWA).</p>
+    <header>
+        <h1>Task Management</h1>
+        <nav>
+            <ul>
+                <li><a href="#home">Home</a></li>
+                <li><a href="#tasks">Tasks</a></li>
+                <li><a href="#notion">Notion Integration</a></li>
+                <li><a href="#memory">Memory Bank</a></li>
+                <li><a href="#quick-capture">Quick Capture</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <section id="home">
+            <h2>Welcome to Your Task Manager</h2>
+            <p>Manage your tasks effectively with our PWA.</p>
+        </section>
+        <section id="tasks">
+            <h2>Your Tasks</h2>
+            <div id="task-list"></div>
+            <button id="add-task">Add Task</button>
+        </section>
+        <section id="notion">
+            <h2>Notion Integration</h2>
+            <p>Connect your Notion account to sync your tasks.</p>
+            <button id="sync-notion">Sync Notion</button>
+        </section>
+        <section id="memory">
+            <h2>Memory Bank</h2>
+            <p>Store important notes and memories.</p>
+            <textarea id="memory-input" placeholder="Write your memories here..."></textarea>
+            <button id="save-memory">Save</button>
+        </section>
+        <section id="quick-capture">
+            <h2>Quick Capture</h2>
+            <input type="text" id="quick-input" placeholder="Quick note...">
+            <button id="capture">Capture</button>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2026 Task Management PWA</p>
+    </footer>
 </body>
 </html>
